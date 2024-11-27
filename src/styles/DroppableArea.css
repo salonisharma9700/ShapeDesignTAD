@@ -2,23 +2,23 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem; /* Reduced gap */
-  padding: 1.5rem; /* Reduced padding */
-  max-width: 1000px; /* Reduced width */
+  gap: 2rem;
+  padding: 1.5rem;
+  max-width: 100%;
   margin: 0 auto;
-  min-height: 70vh; /* Slightly reduced height */
-  background-color: #EAFFD0; /* Updated background color */
+  min-height: 70vh;
+  background-color: #EAFFD0;
 }
 
 .title {
-  font-size: 2rem; /* Reduced size */
+  font-size: 2rem;
   color: #ff7b7b;
   text-align: center;
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  font-size: 1.5rem; /* Reduced size */
+  font-size: 1.5rem;
   color: #4d7eff;
   text-align: center;
   margin-bottom: 1.5rem;
@@ -29,35 +29,35 @@
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.5rem; /* Reduced gap */
-  padding: 1.5rem; /* Reduced padding */
+  gap: 1.5rem;
+  padding: 1.5rem;
   width: 100%;
-  max-width: 700px; /* Reduced max width */
+  max-width: 43.75rem;
   margin: 0 auto;
 }
 
 .shapes-container h3 {
   width: 100%;
   text-align: center;
-  margin: 0 0 1rem 0; /* Reduced margin */
+  margin: 0 0 1rem 0;
   color: #4d7eff;
-  font-size: 1.3rem; /* Reduced size */
+  font-size: 1.3rem;
 }
 
 .droppable-area {
   position: relative;
-  width: 90%; /* Reduced size */
-  max-width: 400px; /* Reduced size */
-  height: 400px; /* Reduced size */
+  width: 90%;
+  max-width: 25rem;
+  height: 25rem;
   background: #ffffff;
-  border: 2px solid #4d7eff;
-  border-radius: 12px;
+  border: 0.125rem solid #4d7eff;
+  border-radius: 0.75rem;
   margin: 0 auto;
   display: flex;
-  justify-content: center; /* Centered shapes horizontally */
-  align-items: center; /* Centered shapes vertically */
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.05);
 }
 
 .droppable-area.over {
@@ -76,18 +76,18 @@
 
 .action-buttons {
   display: flex;
-  gap: 1rem; /* Reduced gap */
-  margin-top: 1.5rem; /* Reduced margin */
+  gap: 1rem;
+  margin-top: 1.5rem;
   justify-content: center;
 }
 
 .evaluate-button,
 .reset-button,
 .next-button {
-  padding: 0.5rem 2rem; /* Reduced padding */
+  padding: 0.5rem 2rem;
   border: none;
   border-radius: 50px;
-  font-size: 1rem; /* Reduced size */
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -96,13 +96,13 @@
 
 .evaluate-button,
 .next-button {
-  background-image: linear-gradient(to right, #7AC4B0, #61A894); /* Updated gradient */
+  background-image: linear-gradient(to right, #7AC4B0, #61A894);
   color: white;
 }
 
 .evaluate-button:hover,
 .next-button:hover {
-  background-color: #77b5b3; /* Slightly adjusted hover color */
+  background-color: #77b5b3;
   transform: translateY(-2px);
 }
 
@@ -137,8 +137,7 @@
   }
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .droppable-area-container {
     padding: 1rem;
     gap: 1rem;
@@ -158,13 +157,13 @@
   }
 
   .droppable-area {
-    height: 350px;
+    height: 21.875rem;
   }
 
   .action-buttons {
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    max-width: 18.75rem;
     margin: 1rem auto;
   }
 

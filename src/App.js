@@ -1,97 +1,69 @@
-
-// import React, { useState, useEffect } from "react";
-// import PreviewDesign from "./components/DesignPreview";
-// import DroppableArea from "./components/DroppableArea";
-// import { fetchDesignData } from "./utils/api";
-// import "./App.css";
-
-// const App = () => {
-//   const [currentScreen, setCurrentScreen] = useState(1); // 1: Preview, 2: Drag and Drop
-//   const [designData, setDesignData] = useState(null);
-
-//   useEffect(() => {
-//     const fetchDesign = async () => {
-//       const design = await fetchDesignData("design1"); // Replace with dynamic ID if needed
-//       setDesignData(design);
-//     };
-
-//     fetchDesign();
-//   }, []);
-
-//   if (!designData) return <div>Loading...</div>;
-
-//   return (
-//     <div className="app">
-//       {currentScreen === 1 ? (
-//         <PreviewDesign
-//           design={designData}
-//           onTimeout={() => setCurrentScreen(2)}
-//         />
-//       ) : (
-//         <DroppableArea designData={designData} />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default App;
-
-
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import ShapeSelectionScreen from "./components/ShapeSelectionScreen";
 import PreviewDesign from "./components/DesignPreview";
 import DroppableArea from "./components/DroppableArea";
-import { fetchDesignData } from "./utils/api";
-import "./App.css";
-const App = () => {
-  const [currentScreen, setCurrentScreen] = useState(1); // 1: Preview, 2: Drag and Drop
-  const [designIndex, setDesignIndex] = useState(0); // Track current design index
-  const [designs, setDesigns] = useState([]); // Store all designs
-  const [loading, setLoading] = useState(true);
+import StartScreen from "./components/StartScreen";  
 
-  useEffect(() => {
-    const fetchAllDesigns = async () => {
-      try {
-        const designIds = ["design1", "design2","design3","design4","design5"];
-        const fetchedDesigns = await Promise.all(
-          designIds.map((id) => fetchDesignData(id))
-        );
-        setDesigns(fetchedDesigns);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching designs:", error);
-      }
-    };
+function App() {
+  const [designs, setDesigns] = useState([]); 
+  const [currentDesignIndex, setCurrentDesignIndex] = useState(0);
+  const navigate = useNavigate(); 
 
-    fetchAllDesigns();
-  }, []);
+  const handleDesignSelection = (selectedDesigns) => {
+    const randomizedDesigns = [...selectedDesigns].sort(() => Math.random() - 0.5); 
+    setDesigns(randomizedDesigns);
+    setCurrentDesignIndex(0);
+    navigate("/preview"); 
+  };
 
   const handleNextDesign = () => {
-    if (designIndex < designs.length - 1) {
-      setDesignIndex((prevIndex) => prevIndex + 1); // Increment the design index
-      setCurrentScreen(1); // Reset to PreviewDesign for the next design
+    if (currentDesignIndex + 1 < designs.length) {
+      setCurrentDesignIndex((prev) => prev + 1); 
+      navigate("/preview"); 
     } else {
-      alert("All designs completed!");
+      console.log("All designs completed.");
+      navigate("/"); 
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleRecreate = (design) => {
+    console.log("Recreating design:", design);
+  };
 
   return (
     <div className="app">
-      {currentScreen === 1 ? (
-        <PreviewDesign
-          design={designs[designIndex]}
-          onTimeout={() => setCurrentScreen(2)}
+      <Routes>
+        <Route path="/" element={<StartScreen />} />
+
+        <Route
+          path="/shapeselection"
+          element={<ShapeSelectionScreen onDesignSelection={handleDesignSelection} />}
         />
-      ) : (
-        <DroppableArea
-          designData={designs[designIndex]}
-          onNextDesign={handleNextDesign}
+
+        <Route
+          path="/preview"
+          element={
+            <PreviewDesign
+              designs={designs}
+              currentDesignIndex={currentDesignIndex}
+              onRecreate={handleRecreate}
+            />
+          }
         />
-      )}
+
+        <Route
+          path="/droppable"
+          element={
+            <DroppableArea
+              designData={designs[currentDesignIndex]}
+              onNextDesign={handleNextDesign}
+            />
+          }
+        />
+      </Routes>
     </div>
   );
-};
+}
 
 export default App;
