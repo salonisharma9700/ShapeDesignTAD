@@ -1,18 +1,20 @@
-
-import React, { useState } from "react";
-import {
-  DndContext,
-  useDraggable,
-  useDroppable,
-  DragOverlay,
-} from "@dnd-kit/core";
+import React, { useState, useEffect } from "react";
+import { DndContext, useDraggable, useDroppable, DragOverlay } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import Confetti from "react-confetti";
 import "../styles/DroppableArea.css";
 
 const DroppableArea = ({ designData, onNextDesign }) => {
   const [droppedShapes, setDroppedShapes] = useState([]);
+  const [draggableShapes, setDraggableShapes] = useState(designData.droppableAreas);
   const [activeShape, setActiveShape] = useState(null);
   const [feedback, setFeedback] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const speak = (message) => {
+    const utterance = new SpeechSynthesisUtterance(message);
+    speechSynthesis.speak(utterance);
+  };
 
   const handleDragStart = (event) => {
     const { active } = event;
@@ -31,11 +33,13 @@ const DroppableArea = ({ designData, onNextDesign }) => {
       )?.shape;
 
       if (shape) {
+        setDraggableShapes((prev) => prev.filter((s) => s.id !== active.id));
+
         const newDroppedShape = {
           ...shape,
           id: active.id,
           droppedAt: over.id,
-          uniqueKey: `${active.id}-${Date.now()}`, // Unique key to prevent duplicate drops
+          uniqueKey: `${active.id}-${Date.now()}`,
         };
 
         setDroppedShapes((prev) => [...prev, newDroppedShape]);
@@ -50,12 +54,19 @@ const DroppableArea = ({ designData, onNextDesign }) => {
       )
     );
 
-    setFeedback(isCorrect ? "Correct! Well done!" : "Try Again!");
-
     if (isCorrect) {
+      setFeedback("Correct! Well done!");
+      setShowConfetti(true);
+      speak("Good Job");
+
       setTimeout(() => {
+        setShowConfetti(false);
         onNextDesign();
-      }, 1000); // Small delay to allow feedback display
+      }, 2000); 
+    } else {
+      setFeedback("Try Again!");
+      speak("Please Try Again");
+      setDroppedShapes([]); 
     }
   };
 
@@ -66,10 +77,12 @@ const DroppableArea = ({ designData, onNextDesign }) => {
 
   return (
     <div className="droppable-area-container">
+      {showConfetti && <Confetti />}
+
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="shapes-container">
           <h3>Draggable Shapes</h3>
-          {designData.droppableAreas.map((area) => (
+          {draggableShapes.map((area) => (
             <Draggable key={area.id} id={area.id} shape={area.shape} />
           ))}
         </div>
