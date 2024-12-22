@@ -10,6 +10,11 @@ const DroppableArea = ({ designData, onNextDesign }) => {
   const [activeShape, setActiveShape] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [startTime, setStartTime] = useState(null);
+
+  useEffect(() => {
+    setStartTime(new Date());
+  }, []);
 
   const speak = (message) => {
     const utterance = new SpeechSynthesisUtterance(message);
@@ -54,25 +59,54 @@ const DroppableArea = ({ designData, onNextDesign }) => {
       )
     );
 
+    const timeSpent = (new Date() - startTime) / 1000;
+    const numberOfDesigns = designData.droppableAreas.length;
+    const designNames = designData.droppableAreas.map((area) => area.shape.name);
+
     if (isCorrect) {
       setFeedback("Correct! Well done!");
       setShowConfetti(true);
       speak("Good Job");
 
+      sendDesignCompletionData(timeSpent, numberOfDesigns, designNames);
+
       setTimeout(() => {
         setShowConfetti(false);
         onNextDesign();
-      }, 2000); 
+      }, 2000);
     } else {
       setFeedback("Try Again!");
       speak("Please Try Again");
-      setDroppedShapes([]); 
+      setDroppedShapes([]);
     }
   };
 
   const resetDesign = () => {
     setDroppedShapes([]);
     setFeedback(null);
+    setStartTime(new Date());
+  };
+
+  const sendDesignCompletionData = async (timeSpent, numberOfDesigns, designNames) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/design-completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: 'user123',
+          timeSpent,
+          numberOfDesigns,
+          designNames,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Backend response:', data);
+    } catch (error) {
+      console.error('Error sending data to backend:', error);
+    }
   };
 
   return (
@@ -166,3 +200,4 @@ const Droppable = ({ children }) => {
 };
 
 export default DroppableArea;
+
