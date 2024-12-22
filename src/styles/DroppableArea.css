@@ -98,6 +98,7 @@
 .next-button {
   background-image: linear-gradient(to right, #7AC4B0, #61A894);
   color: white;
+  border: 2px solid #214f40;
 }
 
 .evaluate-button:hover,
@@ -109,6 +110,7 @@
 .reset-button {
   background: #ff7b7b;
   color: white;
+  border: 2px solid #7f1416;
 }
 
 .reset-button:hover {
@@ -174,3 +176,4 @@
     padding: 0.75rem 1rem;
   }
 }
+
