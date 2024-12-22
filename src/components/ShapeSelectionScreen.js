@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle } from "@mui/icons-material";
 
 const ShapeSelectionScreen = ({ onDesignSelection }) => {
   const [shapesData, setShapesData] = useState([]);
@@ -8,7 +7,7 @@ const ShapeSelectionScreen = ({ onDesignSelection }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("/shapesData.json")
+    fetch("http://localhost:5000/api/designs")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch shapes data");
@@ -16,7 +15,12 @@ const ShapeSelectionScreen = ({ onDesignSelection }) => {
         return response.json();
       })
       .then((data) => {
-        setShapesData(data.designs);
+        if (data && data.designs && Array.isArray(data.designs)) {
+          const designs = data.designs[0]?.designs || [];
+          setShapesData(designs);
+        } else {
+          console.error("Designs data is missing or malformed", data);
+        }
       })
       .catch((error) => {
         console.error("Error fetching shapes data:", error);
@@ -41,71 +45,107 @@ const ShapeSelectionScreen = ({ onDesignSelection }) => {
   };
 
   const handleSendToPreview = () => {
-    const randomizedShapes = selectedShapes.map(({ designId, shapeId }) => {
-      const design = shapesData.find((d) => d.id === designId);
-      const shape = design.droppableAreas.find((area) => area.id === shapeId);
+    const randomizedShapes = selectedShapes
+      .map(({ designId, shapeId }) => {
+        const design = shapesData.find((d) => d.id === designId);
+        const shape = design?.droppableAreas?.find((area) => area.id === shapeId);
 
-      return { ...design, selectedShape: shape };
-    }).sort(() => Math.random() - 0.5);
+        return { ...design, selectedShape: shape };
+      })
+      .sort(() => Math.random() - 0.5);
 
     onDesignSelection(randomizedShapes);
-    console.log(randomizedShapes);
     navigate("/preview");
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Select Shapes</h1>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center" }}>
-        {shapesData.map((design) => (
-          <div
-            key={design.id}
-            style={{
-              border: selectedShapes.some(
-                (selection) => selection.designId === design.id
-              )
-                ? "2px solid green"
-                : "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "16px",
-              backgroundColor: "white",
-              width: "300px",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              position: "relative",
-            }}
-          >
-            {selectedShapes.some(
+        {Array.isArray(shapesData) && shapesData.length > 0 ? (
+          shapesData.map((design) => {
+            const isDesignSelected = selectedShapes.some(
               (selection) => selection.designId === design.id
-            ) && (
-              <CheckCircle
-                style={{
-                  position: "absolute",
-                  top: "8px",
-                  left: "8px",
-                  color: "green",
-                  fontSize: "24px",
-                }}
-              />
-            )}
-            <h3 style={{ textAlign: "center" }}>{design.id}</h3>
-            <div style={{ position: "relative", height: "300px", overflow: "hidden" }}>
-              {design.droppableAreas?.map((area) => (
-                <div
-                  key={area.id}
-                  style={{
-                    position: "absolute",
-                    top: `${area.shape.position.y}px`,
-                    left: `${area.shape.position.x}px`,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleShapeSelect(design.id, area.id)}
-                  dangerouslySetInnerHTML={{ __html: area.shape.svg }}
-                ></div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+            );
 
+            return (
+              <div
+                key={design.id}
+                style={{
+                  border: isDesignSelected ? "2px solid green" : "1px solid #ddd",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  backgroundColor: "white",
+                  width: "350px",
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                  position: "relative",
+                }}
+              >
+                {isDesignSelected && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      left: "8px",
+                      backgroundColor: "green",
+                      color: "white",
+                      borderRadius: "50%",
+                      width: "24px",
+                      height: "24px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontSize: "16px",
+                    }}
+                  >
+                    ✔
+                  </div>
+                )}
+
+                <div style={{ position: "relative", width: "100%", height: "400px" }}>
+                  {design.droppableAreas?.map((area) => (
+                    <div
+                      key={area.id}
+                      style={{
+                        position: "absolute",
+                        left: `${area.shape?.position?.x}px`,
+                        top: `${area.shape?.position?.y}px`,
+                        border: selectedShapes.some(
+                          (selection) =>
+                            selection.designId === design.id && selection.shapeId === area.id
+                        )
+                          ? "2px solid green"
+                          : "none",
+                        borderRadius: "8px",
+                        padding: "0",
+                        cursor: "pointer",
+                        backgroundColor: "transparent",
+                        width: `${area.shape?.dimensions?.width}px`,
+                        height: `${area.shape?.dimensions?.height}px`,
+                      }}
+                      onClick={() => handleShapeSelect(design.id, area.id)}
+                    >
+                      {area.shape?.svg && (
+                        <div
+                          dangerouslySetInnerHTML={{ __html: area.shape.svg }}
+                          style={{
+                            marginBottom: "0",
+                            width: "100%",
+                            height: "100%",
+                            display: "block",
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p>Loading shapes...</p>
+        )}
+      </div>
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <button
           onClick={handleSendToPreview}
