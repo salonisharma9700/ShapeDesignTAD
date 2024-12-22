@@ -52,7 +52,7 @@ const DroppableArea = ({ designData, onNextDesign }) => {
     }
   };
 
-  const evaluateAnswer = () => {
+  const evaluateAnswer = async () => {
     const isCorrect = designData.droppableAreas.every((area) =>
       droppedShapes.some(
         (dropped) => dropped.id === area.id && dropped.droppedAt === "droppable"
@@ -200,4 +200,3 @@ const Droppable = ({ children }) => {
 };
 
 export default DroppableArea;
-
